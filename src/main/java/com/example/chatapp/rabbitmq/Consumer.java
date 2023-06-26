@@ -1,6 +1,7 @@
 package com.example.chatapp.rabbitmq;
 
 
+import com.example.chatapp.controller.Controller;
 import com.rabbitmq.client.Connection;
 
 import java.io.IOException;
@@ -29,10 +30,9 @@ public class Consumer {
         channel.performQueueBinding(USER1_QUEUE_NAME);
     }
 
-    public void subscribe() throws IOException {
+    public void subscribe(Controller controller) throws IOException {
         // Subscribe message
-        channel.subscribeMessage(USER1_QUEUE_NAME);
-        channel.subscribeMessage(USER2_QUEUE_NAME);
+        channel.subscribeMessage(USER1_QUEUE_NAME, controller);
     }
 
 }

@@ -43,6 +43,7 @@ public class Controller {
 
         producer.start();
         consumer.start();
+        consumer.subscribe(this);
 
         initViewChat();
 
@@ -61,16 +62,20 @@ public class Controller {
 
         btnSend.setOnMousePressed(mouseEvent -> {
             try {
-                producer.send(txtChat.getText());
+                producer.send(txtChat.getText(), this);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            listMess.add(txtChat.getText());
-            textArea.setText(String.join(System.lineSeparator(), listMess));
-            scrollViewChat.setContent(textArea);
-            txtChat.clear();
         });
     }
+
+    public void setChat(String chat) {
+        listMess.add(chat);
+        textArea.setText(String.join(System.lineSeparator(), listMess));
+        scrollViewChat.setContent(textArea);
+        txtChat.clear();
+    }
+
 
     private void initViewChat() {
         listMess.add("Welcome to Chat");

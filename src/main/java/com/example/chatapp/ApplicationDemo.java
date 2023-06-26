@@ -14,8 +14,6 @@ public class ApplicationDemo extends Application {
     public void start(Stage stage) throws IOException, TimeoutException {
         FXMLLoader fxmlLoader = new FXMLLoader(ApplicationDemo.class.getResource("view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-//        Controller controller = fxmlLoader.getController();
-//        controller.start();
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();

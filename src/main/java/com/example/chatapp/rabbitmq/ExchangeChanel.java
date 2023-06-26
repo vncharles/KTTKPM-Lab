@@ -1,5 +1,6 @@
 package com.example.chatapp.rabbitmq;
 
+import com.example.chatapp.controller.Controller;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -34,18 +35,18 @@ public class ExchangeChanel {
         channel.queueBind(queueName, exchangeName, "");
     }
 
-    public void subscribeMessage(String queueName) throws IOException {
+    public void subscribeMessage(String queueName, Controller controller) throws IOException {
         // basicConsume - ( queue, autoAck, deliverCallback, cancelCallback)
         channel.basicConsume(queueName, true, ((consumerTag, message) -> {
-            System.out.println("[Received] [" + queueName + "]: " + new String(message.getBody()));
+            controller.setChat("[Received] [" + queueName + "]: " + new String(message.getBody()));
         }), consumerTag -> {
             System.out.println(consumerTag);
         });
     }
 
-    public void publishMessage(String message) throws IOException {
+    public void publishMessage(String queueName, String message, Controller controller) throws IOException {
         // basicPublish - ( exchange, routingKey, basicProperties, body)
-        System.out.println("[Send]: " + message);
+        controller.setChat("[Send]: [" + queueName + "]: " + message);
         channel.basicPublish(exchangeName, "", null, message.getBytes());
     }
 }

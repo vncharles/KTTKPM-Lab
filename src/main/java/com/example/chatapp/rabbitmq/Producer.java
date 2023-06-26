@@ -1,10 +1,10 @@
 package com.example.chatapp.rabbitmq;
 
 
+import com.example.chatapp.controller.Controller;
 import com.rabbitmq.client.Connection;
 
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
 
 import static com.example.chatapp.rabbitmq.Constant.*;
@@ -29,8 +29,8 @@ public class Producer {
         channel.performQueueBinding(USER1_QUEUE_NAME);
     }
 
-    public void send(String message) throws IOException {
+    public void send(String message, Controller controller) throws IOException {
         // Send message
-        channel.publishMessage(message);
+        channel.publishMessage(USER1_QUEUE_NAME, message, controller);
     }
 }
