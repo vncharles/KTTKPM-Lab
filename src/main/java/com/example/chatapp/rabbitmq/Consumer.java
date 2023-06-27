@@ -7,13 +7,13 @@ import com.rabbitmq.client.Connection;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static com.example.chatapp.rabbitmq.Constant.*;
-
 public class Consumer {
 
     private ExchangeChanel channel;
 
-    public void start() throws IOException, TimeoutException {
+    private String EXCHANGE_NAME = "CHATAPP";
+
+    public void start(String queue) throws IOException, TimeoutException {
         // Create connection
         Connection connection = ConnectionManager.createConnection();
 
@@ -24,15 +24,15 @@ public class Consumer {
         channel.declareExchange();
 
         // Create queues
-        channel.declareQueues(USER1_QUEUE_NAME);
+        channel.declareQueues(queue);
 
         // Binding queues with routing keys
-        channel.performQueueBinding(USER1_QUEUE_NAME);
+        channel.performQueueBinding(queue);
     }
 
-    public void subscribe(Controller controller) throws IOException {
+    public void subscribe(String queue, Controller controller) throws IOException {
         // Subscribe message
-        channel.subscribeMessage(USER1_QUEUE_NAME, controller);
+        channel.subscribeMessage(queue, controller);
     }
 
 }

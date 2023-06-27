@@ -1,11 +1,14 @@
 package com.example.chatapp.rabbitmq;
 
 import com.example.chatapp.controller.Controller;
+import com.example.chatapp.entity.Message;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 public class ExchangeChanel {
     private String exchangeName;
@@ -37,16 +40,16 @@ public class ExchangeChanel {
 
     public void subscribeMessage(String queueName, Controller controller) throws IOException {
         // basicConsume - ( queue, autoAck, deliverCallback, cancelCallback)
-        channel.basicConsume(queueName, true, ((consumerTag, message) -> {
-            controller.setChat("[Received] [" + queueName + "]: " + new String(message.getBody()));
+        channel.basicConsume(queueName, true, ((consumerTag, delivery) -> {
+            Message message = SerializationUtils.deserialize(delivery.getBody());
+            controller.setChat(message);
         }), consumerTag -> {
             System.out.println(consumerTag);
         });
     }
 
-    public void publishMessage(String queueName, String message, Controller controller) throws IOException {
+    public void publishMessage(Message message, Controller controller) throws IOException {
         // basicPublish - ( exchange, routingKey, basicProperties, body)
-        controller.setChat("[Send]: [" + queueName + "]: " + message);
-        channel.basicPublish(exchangeName, "", null, message.getBytes());
+        channel.basicPublish(exchangeName, "", null, SerializationUtils.serialize(message));
     }
 }

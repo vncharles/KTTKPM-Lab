@@ -2,17 +2,18 @@ package com.example.chatapp.rabbitmq;
 
 
 import com.example.chatapp.controller.Controller;
+import com.example.chatapp.entity.Message;
 import com.rabbitmq.client.Connection;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static com.example.chatapp.rabbitmq.Constant.*;
-
 public class Producer {
     private ExchangeChanel channel;
 
-    public void start() throws IOException, TimeoutException {
+    private String EXCHANGE_NAME = "CHATAPP";
+
+    public void start(String queue) throws IOException, TimeoutException {
         // Create connection
         Connection connection = ConnectionManager.createConnection();
 
@@ -23,14 +24,14 @@ public class Producer {
         channel.declareExchange();
 
         // Create queues
-        channel.declareQueues(USER1_QUEUE_NAME);
+        channel.declareQueues(queue);
 
         // Binding queues with routing keys
-        channel.performQueueBinding(USER1_QUEUE_NAME);
+        channel.performQueueBinding(queue);
     }
 
-    public void send(String message, Controller controller) throws IOException {
+    public void send(Message message, Controller controller) throws IOException {
         // Send message
-        channel.publishMessage(USER1_QUEUE_NAME, message, controller);
+        channel.publishMessage(message, controller);
     }
 }
