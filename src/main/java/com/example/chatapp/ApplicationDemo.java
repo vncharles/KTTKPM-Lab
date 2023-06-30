@@ -1,6 +1,7 @@
 package com.example.chatapp;
 
 import com.example.chatapp.controller.Controller;
+import com.example.chatapp.entity.MessageDAO;
 import com.example.chatapp.entity.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,7 +10,9 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class ApplicationDemo extends Application {
@@ -28,7 +31,14 @@ public class ApplicationDemo extends Application {
         result.ifPresent(value -> {
             try {
                 controller.startApp(value);
-                User.users.add(value);
+                controller.loadData();
+
+                MessageDAO dao = new MessageDAO();
+                Set<String> listUser = new HashSet<>();
+                dao.listMessage().forEach(i -> listUser.add(i.getUser()));
+                listUser.add(value);
+                User.users.addAll(listUser);
+
                 stage.setTitle("App chat ["+value+"]");
             } catch (IOException e) {
                 throw new RuntimeException(e);

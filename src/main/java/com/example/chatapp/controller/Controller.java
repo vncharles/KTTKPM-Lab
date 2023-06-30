@@ -2,6 +2,7 @@ package com.example.chatapp.controller;
 
 import com.example.chatapp.ApplicationDemo;
 import com.example.chatapp.entity.Message;
+import com.example.chatapp.entity.MessageDAO;
 import com.example.chatapp.entity.User;
 import com.example.chatapp.rabbitmq.Consumer;
 import com.example.chatapp.rabbitmq.Producer;
@@ -10,7 +11,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -36,6 +36,7 @@ public class Controller {
     private Producer producer;
     private Consumer consumer;
     private String QUEUE_CURRENT;
+    private MessageDAO dao = new MessageDAO();
 
     public void startApp(String queue) throws IOException, TimeoutException {
         this.QUEUE_CURRENT = queue;
@@ -49,6 +50,7 @@ public class Controller {
 
     @FXML
     private void initialize() throws IOException, TimeoutException {
+//        Jdbc.connect();
         initCurrentUser();
         initViewChat();
 
@@ -60,10 +62,20 @@ public class Controller {
             Message message = new Message(QUEUE_CURRENT, txtChat.getText());
             try {
                 producer.send(message, this);
+                dao.add(message);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public void loadData() {
+        dao.listMessage().forEach(i -> {
+            if(i.getUser().equals(QUEUE_CURRENT)) listMess.add("[Me send]: " + i.getMessage());
+            else listMess.add("[From "+i.getUser()+"]: " + i.getMessage());
+        });
+        textArea.setText(String.join(System.lineSeparator(), listMess));
+        scrollViewChat.setContent(textArea);
     }
 
     private void newChat() {
@@ -82,8 +94,10 @@ public class Controller {
             result.ifPresent(value -> {
                 try {
                     controller.startApp(value);
+                    controller.loadData();
                     User.users.add(value);
                     stage.setTitle("App chat ["+value+"]");
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (TimeoutException e) {
