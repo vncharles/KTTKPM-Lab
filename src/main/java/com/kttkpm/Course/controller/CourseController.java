@@ -2,31 +2,42 @@ package com.kttkpm.Course.controller;
 
 import com.kttkpm.Course.entity.Course;
 import com.kttkpm.Course.service.CourseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+import static org.slf4j.Logger.*;
+
 @RestController
 @RequestMapping("/api/course")
+@Slf4j
 public class CourseController {
     @Autowired
     private CourseService courseService;
 
+    @Cacheable("courses")
     @GetMapping("")
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(courseService.getAll());
+    public List<Course> getAll() {
+        return courseService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getDetail(@PathVariable("id")Long id) {
-        return ResponseEntity.ok(courseService.getDetail(id));
+    @Cacheable(value = "course", key = "#courseId")
+    @GetMapping("/{courseId}")
+    public Course getDetail(@PathVariable("courseId")Long courseId) {
+        log.info("Getting user with ID {}.", courseId);
+        return courseService.getDetail(courseId);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody Course course) {
-        courseService.create(course);
-
-        return ResponseEntity.ok("Create course is success");
+    public Course create(@RequestBody Course course) {
+        Course courseNew = courseService.create(course);
+        System.out.println("GET ID CREATE: " + courseNew.getId());
+        return courseNew;
     }
 
     @PutMapping("/{id}")

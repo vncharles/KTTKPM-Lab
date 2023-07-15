@@ -11,7 +11,7 @@ public interface CourseService {
 
     Course getDetail(Long id);
 
-    void create(Course course);
+    Course create(Course course);
 
     void update(Long id, Course course);
 
